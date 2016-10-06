@@ -1,0 +1,47 @@
+% ------------------------- document type -------------------------------------
+\documentclass[12pt]{article}
+
+% ----------------------- title and authors -----------------------------------
+\title{
+        {NASA Final Report}\\
+        {\large University of Wisconsin-Madison}
+}
+\author{Paul Wilson, Andrew Davis, Chelsea D'Angelo, Nancy Granda-Duarte}
+\date{\today}
+
+% ---------------------- packages to include ----------------------------------
+\usepackage{graphicx} 	
+\usepackage{times}
+\usepackage{microtype} 	
+\usepackage{caption}	
+\usepackage{multirow}  	
+\usepackage{amsmath}  	
+\usepackage{color,soul} 
+\usepackage{lipsum}
+% ----------------------------------Main Document -----------------------------
+
+\setcounter{section}{1}
+
+\begin{document}
+
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\newpage
+\listoftables
+\newpage
+
+\input{intro}
+
+\input{cadint}
+
+\input{tools}
+
+\input{benchmarks}
+
+\input{analysis}
+
+\end{document}
+
