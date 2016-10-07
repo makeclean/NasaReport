@@ -1,5 +1,8 @@
 #!/bin/bash
 
-pdflatex src/main.tex
-pdflatex src/main.tex
-pdflatex src/main.tex
+cd src
+pdflatex main.tex
+pdflatex main.tex
+pdflatex main.tex
+mv main.pdf ../report.pdf
+cd ..
