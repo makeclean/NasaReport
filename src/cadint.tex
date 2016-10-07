@@ -1,0 +1,66 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CAD Interfaces %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{CAD Interfaces}
+
+\subsection{The University of Wisconsin Unified Workflow}
+The University of Wisconsin Unified Workflow, known as (UW)$^2$ is a mechanism by which 
+monte carlo code agnostic metadata can be attached into DAGMC geometry. A DAGMC geometry
+file is a MOAB database, which when on disk resides as a HDF5 formatted file. The C++
+parts of the Python for Nuclear Engineering (PyNE) toolkit are used as a \textit{Lingua Franca}
+to aid in the translation of metadata. Specifically, we use the Material, Tally, Particle 
+and Name classes.
+\subsection{Materials}
+The \texttt{Material} class is the most fundamental class is used in UW$^2$, where we create and store
+materials in their in memory (object) form, and also where the I/O methods are for the writing 
+of the material object. The material object exists as a standard map of integer nuclide ID numbers
+and their appropriate mass fractions, when required we have functions available to call which will
+write their MC code specific versions, for example to Fluka or MCNP. 
+\subsection{Tallies}
+\subsection{\texttt{uwuw\_preproc}}
+The general workflow of using UW$^2$ is to make a PyNE material library which contains all the materials
+which are used in your problem. The \texttt{uwuw\_preproc} tool is then used to extract the material 
+objects from the material library and inserts them into the DAGMC geometry file. This DAGMC geometry
+file can now be run in any of the UW$^2$ enabled MC codes, but with the knowledge that the same original
+material description is used in each code. 
+\subsection{Limitations of UW$^2$}
+It should be noted, that using the UW$^2$ workflow inputs the same material description, but the MC 
+code may not be capable of describing the material in its original description, for example whilst
+Fluka can describe any nuclide arbitrarily by defining its density, atomic and nucleon number it only
+contains a limited selection for neutron cross sections below 20 MeV, with only the isotopes of 
+hydrogen, helium, lithim, boron, iodine, xenon, caesium, uranium and some of plutonium descibed in
+any isoptopic way. This means that physics aside, the ``low energy'' neutron material definitions are
+inherently different, but this is order to match the requirements of the physics code and not a limitation 
+of the workflow itself. Similarly to Fluka, Geant4 when suitable neutron transport cross sections are not 
+available it will choose some defaults using the cross sections of nuclides with similar nucleon numbers
+and atomic numbers.
+
+\subsection{FluDAG}
+The DAGMC implementation using Fluka is known as FluDAG. It uses the FluGG interface that exists
+in FLuka. The function wrappers have distinct simple C style function arguments and store any 
+C++ state behind this layer. The FluGG interface was originally written under the assumption
+that unambiguous results to any of the geometric query functions can be given, such as 
+given a particle location, determine the cell it is bounded by. With DAGMC we need to include some
+additional state, stored in the RayHistory class which contains information regarding the last triangle
+that was crossed, this state (if used) should be reset when we change direction, cross boundaries, and
+when a history ends. There is some complexity regarding the internal program flow of Fluka, Specifically
+some of the logic of electrons transport ``sensing steps'' and regarding when particles cross boundaries. 
+Especially electrons crossing boundaries, which can logically cross a boundary but end up in the cell in 
+which it began. The combination of DAGMC state and the need to know when a particle was taking a sensing step 
+means that we needed to access a some of the internal Fluka common blocks which complicates some of the
+software library design.
+
+\subsection{DagSolid}
+The DAGMC implementation for the Geant4 interface was originally written by. As part of this contract the 
+DagSolid implementation was improved upon, unit tests added and a specific DagGeant4 executable was written
+which allows the loading and running of the UW$^2$, reading material objects and tallies from the geometry 
+and instanciates the appropriate Geant4 \texttt{G4Elements}, \texttt{G4Isotopes} and \texttt{G4Materials} and the 
+appropriate \texttt{Detectors}. 
+
+\subsection{HZETran}
+
+\subsection{Acceptence Testing}
+\subsection{Benchmarks}
+\subsubsection{ATIC}
+
+
+
