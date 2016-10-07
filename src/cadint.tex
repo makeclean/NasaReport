@@ -50,12 +50,37 @@ means that we needed to access a some of the internal Fluka common blocks which 
 software library design.
 
 \subsection{DagSolid}
-The DAGMC implementation for the Geant4 interface was originally written by. As part of this contract the 
-DagSolid implementation was improved upon, unit tests added and a specific DagGeant4 executable was written
-which allows the loading and running of the UW$^2$, reading material objects and tallies from the geometry 
-and instanciates the appropriate Geant4 \texttt{G4Elements}, \texttt{G4Isotopes} and \texttt{G4Materials} and the 
-appropriate \texttt{Detectors}. 
-
+\label{dagsolid}
+The DAGMC implementation for the Geant4 interface was originally written by the University of Seoul. 
+As part of this contract the \textit{DagSolid} implementation was improved upon, modernised,  and a 
+suite of unit tests added. A single instance of a \textit{DagSolid} object performs queries only
+on a single DAGMC volume, this fits well with the paradigm of Geant4 geometries being hierachical 
+geometry objects where parent-child relationships indicate which volumes are bounded by others. 
+The \textit{DagSolid} library therefore meets the expectations of the Geant4 geometry interface, it is
+entirely possible therefore to mix DAGMC geometry and Geant4 geometry seamlessly as the DagSolid object
+will have parents and children well described by Geant4 geometry hierachy, excellent speedup was observed
+when used in this mode.
+\subsubsection{DagGeant4}
+Also to facililtate a better user experience, a dedecated \textit{DagGeant4}  
+executable was written which allows the loading and running of the UW$^2$ workflow, 
+reading material objects and tallies from the geometry and instanciates the appropriate Geant4 
+\texttt{G4Elements}, \texttt{G4Isotopes} and \texttt{G4Materials} and implments an appropriate 
+set of \texttt{G4SensitiveDetector}. The DagGeant4 executable has not been formally benchmarked
+as part of this work and should be planned as some future work. 
+\subsubsection{Limitations}
+As described in \ref{sec:dagsolid} a single DagSolid object represents a single DAGMC volume, and allows
+all the needed geometric query functions that Geant4 expects. However, because of the nature of the production
+route of DAGMC geometries, i.e. a flat geometry hierarchy where imprinted surface information determines
+the next volume a ray crosses given a surface, we have no knowledge of any underlying geometry hierarchy. 
+Indeed the typical production route of DAGMC geometry removes all hierarchical information, therefore all 
+DagSolid volumes in DagGeant4 exist as children of the highest level ``Mother'' volume. This implies a drastic
+performance hit as DagGeant4 performs intersections on all volumes at the current level 
+\footnote{Geant4 has a smart voxel builder, which should make this query faster than a linear check of 
+each volumes, but it currently unknown if a DagSolid returns enough information for the voxel builder.}
+and the accepted hit is the nearest intersection, thus utterly defeating the full acceleration allowed
+by the OBB Tree. Instead either the \texttt{G4Navigator} needs to made stateful, keeping track of last surface
+crossed and therefore making use of the imprint information, or perhaps use \textit{GenerateHierarchy} 
+to allow the use of Geant4 parent-child links.
 \subsection{HZETran}
 
 \subsection{Acceptence Testing}
