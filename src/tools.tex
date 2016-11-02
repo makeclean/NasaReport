@@ -2,14 +2,48 @@
 \clearpage
 \section{Workflows and Tools}
 
-% Generate Hierarchy 
-\subsection{Generate Hierarchy}
 
 % ReadOBJ
 \subsection{ReadOBJ}
+A mesh representation of a geometry is a collection of vertices which connect to make faces.  
+These faces can be organized into surfaces and closed surfaces can represent a volume.                     
+ReadOBJ is a tool created to read in a Wavefront obj geometry file and populate a MOAB instance 
+with the mesh data in the file.  The contents of an obj file can vary (ref to wiki page) and this 
+reader was written to support a specific subset of the full file structure. 
+
+The line types supported by this reader include object, group, face, and vertex.  
+There are many other valid obj line types that are not supported by this reader.  
+In the case that a valid, but unsupported line type is read in, it will simply be ignored.  
+If a line is read in and the type is unrecognized, an error will be produced to alert the user
+ and the program will end.  
+
+The choice to support these four line types was made because they are common to many obj files
+and more specifically to this project, all the information needed to convert the phantom voxel data
+to an hdf5 file can be broken down into these line types.  Objects and groups are both collections
+of faces.  The difference established here is that a group is thought to be a generic collection, 
+it has no dimension or category.  Objects on the other hand, are thought to be a collection of faces
+that form a closed surface.  Obj files are organized such that all mesh data that follow an object 
+or group line belong to that object or group.  When the reader parses the obj file and an object 
+or group line is found, a new MOAB meshset is created.  Because of the difference between groups 
+and objects, meshsets for groups are only assigned a name and an ID tag.  However, because an object 
+represents a volume enclosed by a surface, two meshsets are created, one for the surface and one for
+the volume.  The volume and surface meshsets are connected through a parent-child relationship.  
+In addition to a name and ID, these meshsets are also given a category and dimension tag.  The surface
+meshset has the faces as members.  The vertices are added to a global vertex meshset.
+
+% Generate Hierarchy 
+\subsection{Generate Hierarchy}
 
 % Combining Geometries
 \subsection{Combining Geometries}
+The \texttt{combine\_geoms} tool was created for cases in which pieces of the full geometry are created
+by different methods and then need to be combined together for the final radiation transport
+calculation.  When each piece of the geometry is created individually, the global ID assigned
+to each meshset is usually an integer between 1 and n, where n is the total number of 
+meshsets in that geometry.  When several pieces of geometry are combined, the global ID of each
+meshset needs to be reassigned in order to avoid any overlap in ID space.  This tool simply 
+renumbers the global ID of every MOAB surface and volume meshset.  This tool can be found at
+https://github.com/cadangelo/combine\_geoms.
 
 % SRAGCodes
 \subsection{SRAGCodes}
