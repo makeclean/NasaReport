@@ -2,14 +2,107 @@
 \clearpage
 \section{Workflows and Tools}
 
-% Generate Hierarchy 
-\subsection{Generate Hierarchy}
 
 % ReadOBJ
 \subsection{ReadOBJ}
+DAGMC ultimately performs transport on a triangulated surface mesh representation of a solid geometry.
+The mesh is a collection of vertices which connect to make faces, these faces can be organized into 
+surfaces and closed surfaces can represent a volume.  \texttt{ReadOBJ} is a tool created to read in a Wavefront OBJ
+geometry file and populate a MOAB instance with the mesh data in the file.  The contents of an OBJ file 
+can vary \cite{obj} and this reader was written to support a specific subset of the full file structure. 
+
+The line types supported by this reader include object, group, face, and vertex, 
+but there are many other valid obj line types.  
+In the case that a valid, but unsupported line type is read in, it will simply be ignored.  
+If a line is read in and the type is unrecognized, an error will be produced to alert the user
+ and the program will end.  
+
+The choice to support these four line types was made because 1) they are common to many OBJ files
+and 2) specific to this project, all the information needed to convert the phantom voxel data
+to an hdf5 file can be organized into these types.  Objects and groups are both collections
+of faces.  The difference established here is that a group is a generic collection, 
+while objects are thought to be a collection of faces that form a closed surface.  
+OBJ files are organized such that all mesh data that follow an object or group line belong to
+that object or group.  When the reader parses the obj file and an object 
+or group line is found, a new MOAB meshset is created.  Meshsets for groups are assigned a name 
+and ID tag and the faces listed below it become members of this meshset.  Because an object 
+represents a volume enclosed by a surface, a second meshset is created so there is one for the surface 
+and one for the volume.  The volume and surface meshsets are connected through a parent-child relationship.  
+In addition to a name and ID, these meshsets are also given a category and dimension tag.  The surface
+meshset has the faces below the object line as members.  Instead of adding the vertices to individual meshsets,
+they are instead added to a global vertex meshset.
+
+% Generate Hierarchy 
+\subsection{Generate Hierarchy}
+For successful radiation transport, all space needs to be explicitly defined by a single material. 
+Geometry files that only contain surface mesh data and no sense of hierarchy amongst these surfaces
+have inadequate information.  More specifically, there is no information about which surfaces are inside,
+outside, or beside each other.  \texttt{Generate\_hierarchy} is a class within MOAB \cite{genhi} that was created to
+make these files suitable for radiation transport calculations.   This tool determines the spatial relationship
+amongst surfaces and then applies a hierarchical structure based upon those relationships. As an example, 
+Figure~\ref{fig:spheres} depicts a 2D slice of nested surfaces.  Consider surface B.  It is completely enclosed by surface A, 
+encloses surface D, and is beside surface C.  These hierarchical relationships are necessary so that 
+volumetric entities can be determined.  For example, it can now be inferred that volume B is the space enclosed by 
+surface B, but outside of surface D.
+
+\begin{figure}[h!]
+ % Width = width of figure, {/path/to/figure.(png,pdf,jpg)}
+ \begin{centering}
+ \centering
+ \includegraphics[width=\paperwidth]{../figs/nested_spheres.png}
+ \caption{Nested spheres}
+ \label{fig:spheres}
+ \end{centering}
+\end{figure}
+
+There are a few fundamental assumptions made about the geometry file read in by this tool.  It is assumed 
+that each surface meshset represents a closed surface, that there are no overlapping surfaces, and that there is a volume meshset that 
+exactly corresponds to each surface meshset.  It is also assumed that the only hierarchical relationships that exist are the
+parent-child relationships between volume and surface meshsets and that the surface 
+meshset has forward sense with respect to its corresponding volume meshset.  The \texttt{Generate\_hierarchy} class
+has two main public-facing functions \texttt{build\_hierarchy} and \texttt{construct\_topology} that can be used in sequence
+to prepare a surface mesh geometry for MC radiation transport.  
+
+\texttt{Build\_hierarchy} tests every surface in the geometry and decides where it belongs in a hierarchical tree.  
+The hierarchical relationships will actually be made between volume meshsets which at this point, are the 
+meshsets that exactly correspond to the surface meshsets.  The tree is formed by testing a point on the surface 
+coming into the tree against the volumes already in the tree. Looking again at Figure~\ref{fig:spheres}, let’s assume that 
+surface A is the first to be tested.  The tree is initially empty so volume A is automatically placed at the top.  
+Assume surface C is tested next.  It is found to be inside of volume A, so it becomes a child.  Surface D is next 
+and found to also be inside volume A, but neither inside or outside of volume C.  Volume D becomes another child of A.  
+Last, surface B is tested.  It is found to be inside of A, outside of B, and beside C.  Therefore, volume B becomes a 
+child of volume A, and a parent of volume D.  Because a volume can only have one parent, the parent-child linkage 
+between volume A and volume D is broken.  The constructed tree is shown in Figure \ref{fig:tree} below.
+
+\begin{figure}
+ % Width = width of figure, {/path/to/figure.(png,pdf,jpg)}
+ \begin{centering}
+ \centering
+ \includegraphics[width=\paperwidth]{../figs/tree.png}
+ \caption{Hierarchical tree build from nested spheres geometry.}
+ \label{fig:tree}
+ \end{centering}
+\end{figure}
+
+After the hierarchical structure has been established, DAGMC-appropriate volumes are created by \texttt{construct\_topology}.  
+This is accomplished by setting the surface sense and creating the hierarchical parent-child linkages between the 
+surface meshsets.  Each surface has two volumes associated with it, one inside and one outside.  The surface has 
+sense forward with respect to the volume it encloses and as mentioned earlier, this is already set. This function sets 
+the reverse sense of the surface to the volume directly above it in the tree.  For example, surface B has forward 
+sense with respect to volume B and reverse sense with respect to volume A.  Because surface A is the outermost surface, 
+it has forward sense with respect to volume A and no reverse sense.  Surfaces that do not have reverse sense set lie in the 
+implicit compliment.
 
 % Combining Geometries
 \subsection{Combining Geometries}
+The \texttt{combine\_geoms} tool \cite{combine} was created for cases in which pieces of the full geometry are created
+separately and then need to be combined together for the final radiation transport
+calculation.  Each piece of the full geometry has its own set of meshsets that are usually assigned a global ID
+that is an integer between 1 and n, where n is the total number of 
+meshsets in that piece.  When several pieces of geometry are combined, the global ID of each
+meshset needs to be reassigned a unique ID in order to avoid any overlap in ID space.  This tool loads each piece of
+the geometry and then renumbers the global ID of every MOAB surface and volume meshset.
+
 
 % SRAGCodes
 \subsection{SRAGCodes}

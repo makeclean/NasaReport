@@ -25,10 +25,10 @@
        \texttt{paul.wilson@wisc.edu}
        \and
        Chelsea D'Angelo\\
-       \texttt{chelsea.dangelo@wisc.edu}
+       \texttt{cadangelo@wisc.edu}
        \and
        Nancy Granda-Duarte\\
-       \texttt{nancyg@wisc.edu}
+       \texttt{grandaduarte@wisc.edu}
        }
 \date{\today}
 
@@ -38,9 +38,12 @@
 \usepackage{microtype} 	
 \usepackage{caption}	
 \usepackage{multirow}  	
+\usepackage{longtable}
+\usepackage{booktabs}
 \usepackage{amsmath}  	
 \usepackage{color,soul} 
 \usepackage{lipsum}
+\usepackage{cite}
 % ----------------------------------Main Document -----------------------------
 
 \setcounter{section}{1}
@@ -66,5 +69,24 @@
 
 \input{analysis}
 
+\newpage
+\appendix
+\input{mats}
+
+\begin{thebibliography}{9}
+
+\bibitem{obj}
+Wavefront OBJ,
+\\\texttt{https://en.wikipedia.org/wiki/Wavefront\_.obj\_file}
+
+\bibitem{genhi}
+Generate\_hierarchy
+\\\texttt{https://bitbucket.org/cadangelo/moab}, Branch: genHierarchy
+
+\bibitem{combine}
+Combine Geometries
+\\\texttt{https://github.com/cadangelo/combine\_geoms}
+
+\end{thebibliography}
 \end{document}
 
