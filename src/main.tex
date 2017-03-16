@@ -5,6 +5,7 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{subcaption}
+\usepackage{fullpage}
 \setlength{\hoffset}{0.0in}
 \setlength{\oddsidemargin}{-.5in}
 \setlength{\textwidth}{.85\paperwidth}
@@ -72,23 +73,27 @@
 \input{analysis}
 
 \newpage
+\clearpage
+\bibliographystyle{ieeetr}
+\bibliography{bibliography}{}
+\newpage
+\clearpage
 \appendix
 \input{mats}
 
-\begin{thebibliography}{9}
+%\begin{thebibliography}{9}
+%\bibitem{obj}
+%Wavefront OBJ,
+%\\\texttt{https://en.wikipedia.org/wiki/Wavefront\_.obj\_file}
 
-\bibitem{obj}
-Wavefront OBJ,
-\\\texttt{https://en.wikipedia.org/wiki/Wavefront\_.obj\_file}
+%\bibitem{genhi}
+%Generate\_hierarchy
+%\\\texttt{https://bitbucket.org/cadangelo/moab}, Branch: genHierarchy
 
-\bibitem{genhi}
-Generate\_hierarchy
-\\\texttt{https://bitbucket.org/cadangelo/moab}, Branch: genHierarchy
+%\bibitem{combine}
+%Combine Geometries
+%\\\texttt{https://github.com/cadangelo/combine\_geoms}
+%\end{thebibliography}
 
-\bibitem{combine}
-Combine Geometries
-\\\texttt{https://github.com/cadangelo/combine\_geoms}
-
-\end{thebibliography}
 \end{document}
 
