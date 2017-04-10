@@ -1,10 +1,10 @@
 % -------------------------------------- Workflows and Tools ----------------------------------
 \clearpage
 \section{Workflows and Tools}
-
-
+\label{sec:workflows}
 % ReadOBJ
 \subsection{ReadOBJ}
+\label{sec:readobj}
 DAGMC ultimately performs transport on a triangulated surface mesh representation of a solid geometry.
 The mesh is a collection of vertices which connect to make faces, these faces can be organized into 
 surfaces and closed surfaces can represent a volume.  \texttt{ReadOBJ} is a tool created to read in a Wavefront OBJ
@@ -34,6 +34,7 @@ they are instead added to a global vertex meshset.
 
 % Generate Hierarchy 
 \subsection{Generate Hierarchy}
+\label{sec:genhi}
 For successful radiation transport, all space needs to be explicitly defined by a single material. 
 Geometry files that only contain surface mesh data and no sense of hierarchy amongst these surfaces
 have inadequate information.  More specifically, there is no information about which surfaces are inside,
@@ -106,6 +107,7 @@ the geometry and then renumbers the global ID of every MOAB surface and volume m
 
 % SRAGCodes
 \subsection{SRAGCodes}
+\label{sec:sragcodes}
 The \texttt{SRAGCodes} repository is a software library that allows sampling of Galactic Cosmic Ray (GCR)
 spectra for any Monte Carlo code. The library is written with C++ interfaces and coded using the C++11 
 standard. The repository contains GCR spectra for Badhwar O'Neill 2014 Model (BOM), Local Interstellar Spectrum, and
